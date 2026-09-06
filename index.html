@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tov2</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #050505;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: auto;
+      padding: 24px 18px 60px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .user-area {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nickname {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #111;
+      padding: 5px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      border: 0;
+      background: transparent;
+      color: #777;
+      padding: 11px 5px;
+      border-radius: 10px;
+    }
+
+    .tab.active {
+      background: #222;
+      color: white;
+      font-weight: 700;
+    }
+
+    .progress-box {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #292929;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #39d353;
+      transition: 0.3s;
+    }
+
+    .habit-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .habit {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 8px;
+      border: 2px solid #555;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-weight: 900;
+    }
+
+    .habit.done .check {
+      background: #39d353;
+      border-color: #39d353;
+    }
+
+    .habit.missed .check {
+      background: #ff3b30;
+      border-color: #ff3b30;
+    }
+
+    .habit-info {
+      flex: 1;
+    }
+
+    .habit-name {
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    .habit-status {
+      margin-top: 4px;
+      color: #777;
+      font-size: 12px;
+    }
+
+    .habit.done .habit-status {
+      color: #39d353;
+    }
+
+    .habit.missed .habit-status {
+      color: #ff3b30;
+    }
+
+    .delete-btn {
+      border: 0;
+      background: transparent;
+      color: #555;
+      font-size: 18px;
+    }
+
+    .delete-btn:hover {
+      color: #ff3b30;
+    }
+
+    .add-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .add-box input {
+      flex: 1;
+      min-width: 0;
+      background: #111;
+      border: 1px solid #292929;
+      color: white;
+      padding: 13px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .primary {
+      border: 0;
+      background: white;
+      color: black;
+      padding: 0 18px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .secondary {
+      border: 1px solid #292929;
+      background: #111;
+      color: white;
+      padding: 9px 13px;
+      border-radius: 10px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #666;
+      padding: 50px 10px;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day-cell {
+      min-height: 55px;
+      background: #111;
+      border-radius: 8px;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .day-number {
+      color: #aaa;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 2px;
+      background: #333;
+    }
+
+    .dot.done {
+      background: #39d353;
+    }
+
+    .dot.missed {
+      background: #ff3b30;
+    }
+
+    .week-grid {
+      overflow-x: auto;
+    }
+
+    .week-table {
+      min-width: 650px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .week-table th,
+    .week-table td {
+      border-bottom: 1px solid #222;
+      padding: 10px 5px;
+      text-align: center;
+    }
+
+    .week-table th:first-child,
+    .week-table td:first-child {
+      text-align: left;
+    }
+
+    .mini-check {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      border-radius: 6px;
+      background: #292929;
+    }
+
+    .mini-check.done {
+      background: #39d353;
+    }
+
+    .mini-check.missed {
+      background: #ff3b30;
+    }
+
+    .year-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .month-box {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .month-name {
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .month-progress {
+      color: #888;
+      font-size: 13px;
+    }
+
+    .auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 400px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 20px;
+      padding: 25px;
+    }
+
+    .auth-box h1 {
+      margin-top: 0;
+    }
+
+    .auth-box input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 13px;
+      background: #050505;
+      border: 1px solid #292929;
+      color: white;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .auth-buttons {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .auth-buttons button {
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .message {
+      color: #ff6b6b;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: 16px 12px 40px;
+      }
+
+      .logo {
+        font-size: 25px;
+      }
+
+      .nickname {
+        display: none;
+      }
+
+      .year-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .add-box {
+        flex-direction: column;
+      }
+
+      .primary {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 로그인 화면 -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-box">
+      <h1>Tov2</h1>
+      <p style="color:#777;">습관을 기록하고 지켜보세요.</p>
+
+      <input
+        id="nicknameInput"
+        type="text"
+        placeholder="닉네임"
+      />
+
+      <input
+        id="emailInput"
+        type="email"
+        placeholder="이메일"
+      />
+
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="비밀번호"
+      />
+
+      <div class="auth-buttons">
+        <button id="signupBtn" class="primary">
+          회원가입
+        </button>
+
+        <button id="loginBtn" class="secondary">
+          로그인
+        </button>
+      </div>
+
+      <div id="authMessage" class="message"></div>
+    </div>
+  </section>
+
+
+  <!-- 앱 -->
+  <main id="app" class="app hidden">
+
+    <header>
+      <div class="logo">Tov2</div>
+
+      <div class="user-area">
+        <span id="nickname" class="nickname"></span>
+        <button id="logoutBtn" class="secondary">
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+
+    <!-- 보기 탭 -->
+    <nav class="tabs">
+      <button class="tab active" data-view="day">DAY</button>
+      <button class="tab" data-view="week">WEEK</button>
+      <button class="tab" data-view="month">MONTH</button>
+      <button class="tab" data-view="year">YEAR</button>
+    </nav>
+
+
+    <!-- 진행률 -->
+    <section class="progress-box">
+      <div class="progress-top">
+        <strong>오늘의 진행률</strong>
+        <span id="progressText">0%</span>
+      </div>
+
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+    </section>
+
+
+    <!-- 화면 -->
+    <section id="content"></section>
+
+
+    <!-- 습관 추가 -->
+    <div class="add-box">
+      <input
+        id="habitInput"
+        type="text"
+        maxlength="50"
+        placeholder="새 습관 추가..."
+      />
+
+      <button id="addHabitBtn" class="primary">
+        습관 추가
+      </button>
+    </div>
+
+  </main>
+
+
+  <script type="module">
+
+    /*
+      ==========================================
+      Firebase 설정
+      ==========================================
+
+      아래 값은 Firebase Console에서 가져와야 합니다.
+    */
+
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      addDoc,
+      deleteDoc,
+      getDocs,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+    /*
+      ⚠️ 여기에 Firebase 설정을 넣습니다.
+    */
+
+    const firebaseConfig = {
+
+      apiKey: "여기에_API_KEY",
+
+      authDomain:
+        "여기에.firebaseapp.com",
+
+      projectId:
+        "여기에_PROJECT_ID",
+
+      storageBucket:
+        "여기에.firebasestorage.app",
+
+      messagingSenderId:
+        "여기에_MESSAGING_SENDER_ID",
+
+      appId:
+        "여기에_APP_ID"
+
+    };
+
+
+    const firebaseApp = initializeApp(firebaseConfig);
+
+    const auth = getAuth(firebaseApp);
+
+    const db = getFirestore(firebaseApp);
+
+
+    /*
+      ==========================================
+      기본 변수
+      ==========================================
+    */
+
+    let currentUser = null;
+
+    let habits = [];
+
+    let records = {};
+
+    let currentView = "day";
+
+
+    /*
+      ==========================================
+      한국 날짜
+      ==========================================
+    */
+
+    function koreaDate(date = new Date()) {
+
+      return new Intl.DateTimeFormat(
+        "en-CA",
+        {
+          timeZone: "Asia/Seoul",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        }
+      ).format(date);
+
+    }
+
+
+    function addDays(dateString, amount) {
+
+      const date = new Date(dateString + "T00:00:00");
+
+      date.setDate(date.getDate() + amount);
+
+      return date.toISOString().slice(0, 10);
+
+    }
+
+
+    function getWeekDates() {
+
+      const today = koreaDate();
+
+      const date = new Date(today + "T00:00:00");
+
+      const day = date.getDay();
+
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+
+      date.setDate(date.getDate() + mondayOffset);
+
+      const result = [];
+
+      for (let i = 0; i < 7; i++) {
+
+        result.push(
+          date.toISOString().slice(0, 10)
+        );
+
+        date.setDate(date.getDate() + 1);
+
+      }
+
+      return result;
+
+    }
+
+
+    /*
+      ==========================================
+      Firebase 데이터
+      ==========================================
+    */
+
+    async function loadData() {
+
+      if (!currentUser) return;
+
+      habits = [];
+
+      records = {};
+
+      const habitsRef =
+        collection(
+          db,
+          "users",
+          currentUser.uid,
+          "habits"
+        );
+
+      const habitSnapshot =
+        await getDocs(habitsRef);
+
+      habitSnapshot.forEach(item => {
+
+        habits.push({
+          id: item.id,
+          ...item.data()
+        });
+
+      });
+
+
+      const recordsRef =
+        collection(
+          db,
+          "users",
+          currentUser.uid,
+          "habitRecords"
+        );
+
+      const recordSnapshot =
+        await getDocs(recordsRef);
+
+      recordSnapshot.forEach(item => {
+
+        records[item.id] = item.data();
+
+      });
+
+
+      render();
+
+    }
+
+
+    /*
+      ==========================================
+      습관 추가
+      ==========================================
+    */
+
+    async function addHabit() {
+
+      const input =
+        document.getElementById("habitInput");
+
+      const name = input.value.trim();
+
+      if (!name) return;
+
+      const habitRef =
+        await addDoc(
+          collection(
+            db,
+            "users",
+            currentUser.uid,
+            "habits"
+          ),
+          {
+            name: name,
+            createdAt: new Date().toISOString()
+          }
+        );
+
+      habits.push({
+        id: habitRef.id,
+        name: name
+      });
+
+      input.value = "";
+
+      render();
+
+    }
+
+
+    /*
+      ==========================================
+      습관 삭제
+      ==========================================
+    */
+
+    async function deleteHabit(id) {
+
+      const ok =
+        confirm("이 습관을 삭제할까요?");
+
+      if (!ok) return;
+
+      await deleteDoc(
+        doc(
+          db,
+          "users",
+          currentUser.uid,
+          "habits",
+          id
+        )
+      );
+
+      habits =
+        habits.filter(
+          habit => habit.id !== id
+        );
+
+      render();
+
+    }
+
+
+    /*
+      ==========================================
+      완료 기록
+      ==========================================
+    */
+
+    async function toggleHabit(
+      habit,
+      date
+    ) {
+
+      const recordId =
+        `${habit.id}_${date}`;
+
+      const recordRef =
+        doc(
+          db,
+          "users",
+          currentUser.uid,
+          "habitRecords",
+          recordId
+        );
+
+      const oldRecord =
+        records[recordId];
+
+      const completed =
+        !oldRecord?.completed;
+
+      const data = {
+        habitId: habit.id,
+        date: date,
+        completed: completed,
+        updatedAt: new Date().toISOString()
+      };
+
+      await setDoc(recordRef, data);
+
+      records[recordId] = data;
+
+      render();
+
+    }
+
+
+    /*
+      ==========================================
+      상태
+      ==========================================
+    */
+
+    function getStatus(habit, date) {
+
+      const recordId =
+        `${habit.id}_${date}`;
+
+      const record =
+        records[recordId];
+
+      if (record?.completed) {
+
+        return "done";
+
+      }
+
+
+      const today = koreaDate();
+
+      /*
+        미래 날짜
+        */
+
+      if (date > today) {
+
+        return "pending";
+
+      }
+
+
+      /*
+        오늘은 아직 진행 중
+        */
+
+      if (date === today) {
+
+        return "pending";
+
+      }
+
+
+      /*
+        어제 이전인데 안 했다면
+        missed 처리
+        */
+
+      return "missed";
+
+    }
+
+
+    /*
+      ==========================================
+      DAY
+      ==========================================
+    */
+
+    function renderDay() {
+
+      const today =
+        koreaDate();
+
+      if (habits.length === 0) {
+
+        return `
+          <div class="empty">
+            아직 습관이 없어요.<br>
+            아래에서 첫 습관을 추가해보세요.
+          </div>
+        `;
+
+      }
+
+
+      return `
+        <div class="habit-list">
+
+          ${habits.map(habit => {
+
+            const status =
+              getStatus(habit, today);
+
+            return `
+              <div class="habit ${status}">
+
+                <button
+                  class="check"
+                  data-toggle="${habit.id}"
+                >
+                  ${status === "done" ? "✓" : ""}
+                </button>
+
+                <div class="habit-info">
+
+                  <div class="habit-name">
+                    ${escapeHtml(habit.name)}
+                  </div>
+
+                  <div class="habit-status">
+
+                    ${
+                      status === "done"
+                      ? "완료"
+                      : status === "missed"
+                      ? "놓침"
+                      : "진행 중"
+                    }
+
+                  </div>
+
+                </div>
+
+                <button
+                  class="delete-btn"
+                  data-delete="${habit.id}"
+                >
+                  ×
+                </button>
+
+              </div>
+            `;
+
+          }).join("")}
+
+        </div>
+      `;
+
+    }
+
+
+    /*
+      ==========================================
+      WEEK
+      ==========================================
+    */
+
+    function renderWeek() {
+
+      const dates =
+        getWeekDates();
+
+      if (habits.length === 0) {
+
+        return `
+          <div class="empty">
+            습관을 먼저 추가해주세요.
+          </div>
+        `;
+
+      }
+
+
+      return `
+        <div class="week-grid">
+
+          <table class="week-table">
+
+            <thead>
+              <tr>
+
+                <th>습관</th>
+
+                ${dates.map(date => `
+                  <th>
+                    ${date.slice(5)}
+                  </th>
+                `).join("")}
+
+              </tr>
+            </thead>
+
+            <tbody>
+
+              ${habits.map(habit => `
+
+                <tr>
+
+                  <td>
+                    ${escapeHtml(habit.name)}
+                  </td>
+
+                  ${dates.map(date => {
+
+                    const status =
+                      getStatus(habit, date);
+
+                    return `
+                      <td>
+
+                        <button
+                          class="mini-check ${status}"
+                          data-week-toggle="${habit.id}|${date}"
+                        ></button>
+
+                      </td>
+                    `;
+
+                  }).join("")}
+
+                </tr>
+
+              `).join("")}
+
+            </tbody>
+
+          </table>
+
+        </div>
+      `;
+
+    }
+
+
+    /*
+      ==========================================
+      MONTH
+      ==========================================
+    */
+
+    function renderMonth() {
+
+      const now = new Date();
+
+      const year =
+        now.getFullYear();
+
+      const month =
+        now.getMonth();
+
+      const first =
+        new Date(year, month, 1);
+
+      const last =
+        new Date(year, month + 1, 0);
+
+      let html = `
+        <h2>
+          ${year}년 ${month + 1}월
+        </h2>
+
+        <div class="calendar">
+      `;
+
+
+      for (
+        let i = 0;
+        i < first.getDay();
+        i++
+      ) {
+
+        html += `<div></div>`;
+
+      }
+
+
+      for (
+        let day = 1;
+        day <= last.getDate();
+        day++
+      ) {
+
+        const date =
+          `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        let dots = "";
+
+        habits.forEach(habit => {
+
+          const status =
+            getStatus(habit, date);
+
+          dots += `
+            <span class="dot ${status}"></span>
+          `;
+
+        });
+
+
+        html += `
+          <div class="day-cell">
+
+            <div class="day-number">
+              ${day}
+            </div>
+
+            <div>
+              ${dots}
+            </div>
+
+          </div>
+        `;
+
+      }
+
+
+      html += `
+        </div>
+      `;
+
+      return html;
+
+    }
+
+
+    /*
+      ==========================================
+      YEAR
+      ==========================================
+    */
+
+    function renderYear() {
+
+      const year =
+        new Date().getFullYear();
+
+      let html = `
+        <h2>${year}년</h2>
+
+        <div class="year-grid">
+      `;
+
+
+      for (let month = 0; month < 12; month++) {
+
+        let completed = 0;
+
+        let total = 0;
+
+        const days =
+          new Date(
+            year,
+            month + 1,
+            0
+          ).getDate();
+
+
+        for (let day = 1; day <= days; day++) {
+
+          const date =
+            `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+          habits.forEach(habit => {
+
+            total++;
+
+            const recordId =
+              `${habit.id}_${date}`;
+
+            if (records[recordId]?.completed) {
+
+              completed++;
+
+            }
+
+          });
+
+        }
+
+
+        const percent =
+          total === 0
+          ? 0
+          : Math.round(
+              completed / total * 100
+            );
+
+
+        html += `
+          <div class="month-box">
+
+            <div class="month-name">
+              ${month + 1}월
+            </div>
+
+            <div class="month-progress">
+              ${completed} / ${total}
+              · ${percent}%
+            </div>
+
+          </div>
+        `;
+
+      }
+
+
+      html += `</div>`;
+
+      return html;
+
+    }
+
+
+    /*
+      ==========================================
+      전체 렌더링
+      ==========================================
+    */
+
+    function render() {
+
+      const content =
+        document.getElementById("content");
+
+      if (currentView === "day") {
+
+        content.innerHTML =
+          renderDay();
+
+      }
+
+      if (currentView === "week") {
+
+        content.innerHTML =
+          renderWeek();
+
+      }
+
+      if (currentView === "month") {
+
+        content.innerHTML =
+          renderMonth();
+
+      }
+
+      if (currentView === "year") {
+
+        content.innerHTML =
+          renderYear();
+
+      }
+
+
+      updateProgress();
+
+      attachEvents();
+
+    }
+
+
+    /*
+      ==========================================
+      오늘 진행률
+      ==========================================
+    */
+
+    function updateProgress() {
+
+      const today =
+        koreaDate();
+
+      if (habits.length === 0) {
+
+        document.getElementById(
+          "progressText"
+        ).textContent = "0%";
+
+        document.getElementById(
+          "progressFill"
+        ).style.width = "0%";
+
+        return;
+
+      }
+
+
+      let completed = 0;
+
+      habits.forEach(habit => {
+
+        const id =
+          `${habit.id}_${today}`;
+
+        if (records[id]?.completed) {
+
+          completed++;
+
+        }
+
+      });
+
+
+      const percent =
+        Math.round(
+          completed / habits.length * 100
+        );
+
+
+      document.getElementById(
+        "progressText"
+      ).textContent =
+        `${percent}%`;
+
+      document.getElementById(
+        "progressFill"
+      ).style.width =
+        `${percent}%`;
+
+    }
+
+
+    /*
+      ==========================================
+      버튼 이벤트
+      ==========================================
+    */
+
+    function attachEvents() {
+
+      document
+        .querySelectorAll("[data-toggle]")
+        .forEach(button => {
+
+          button.onclick = () => {
+
+            const habit =
+              habits.find(
+                h => h.id === button.dataset.toggle
+              );
+
+            if (habit) {
+
+              toggleHabit(
+                habit,
+                koreaDate()
+              );
+
+            }
+
+          };
+
+        });
+
+
+      document
+        .querySelectorAll("[data-delete]")
+        .forEach(button => {
+
+          button.onclick = () => {
+
+            deleteHabit(
+              button.dataset.delete
+            );
+
+          };
+
+        });
+
+
+      document
+        .querySelectorAll("[data-week-toggle]")
+        .forEach(button => {
+
+          button.onclick = () => {
+
+            const [
+              habitId,
+              date
+            ] =
+              button.dataset.weekToggle.split("|");
+
+            const habit =
+              habits.find(
+                h => h.id === habitId
+              );
+
+            if (habit) {
+
+              toggleHabit(
+                habit,
+                date
+              );
+
+            }
+
+          };
+
+        });
+
+    }
+
+
+    /*
+      ==========================================
+      XSS 방지
+      ==========================================
+    */
+
+    function escapeHtml(text) {
+
+      const div =
+        document.createElement("div");
+
+      div.textContent = text;
+
+      return div.innerHTML;
+
+    }
+
+
+    /*
+      ==========================================
+      탭
+      ==========================================
+    */
+
+    document
+      .querySelectorAll(".tab")
+      .forEach(tab => {
+
+        tab.onclick = () => {
+
+          document
+            .querySelectorAll(".tab")
+            .forEach(item =>
+              item.classList.remove("active")
+            );
+
+          tab.classList.add("active");
+
+          currentView =
+            tab.dataset.view;
+
+          render();
+
+        };
+
+      });
+
+
+    /*
+      ==========================================
+      습관 추가 버튼
+      ==========================================
+    */
+
+    document
+      .getElementById("addHabitBtn")
+      .onclick = addHabit;
+
+
+    document
+      .getElementById("habitInput")
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if (event.key === "Enter") {
+
+            addHabit();
+
+          }
+
+        }
+      );
+
+
+    /*
+      ==========================================
+      회원가입
+      ==========================================
+    */
+
+    document
+      .getElementById("signupBtn")
+      .onclick = async () => {
+
+        const nickname =
+          document
+            .getElementById("nicknameInput")
+            .value
+            .trim();
+
+        const email =
+          document
+            .getElementById("emailInput")
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById("passwordInput")
+            .value;
+
+
+        if (!nickname || !email || !password) {
+
+          showAuthMessage(
+            "닉네임, 이메일, 비밀번호를 입력해주세요."
+          );
+
+          return;
+
+        }
+
+
+        try {
+
+          const credential =
+            await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+
+
+          await setDoc(
+            doc(
+              db,
+              "users",
+              credential.user.uid
+            ),
+            {
+              uid: credential.user.uid,
+              nickname: nickname,
+              createdAt:
+                new Date().toISOString()
+            }
+          );
+
+
+        } catch (error) {
+
+          showAuthMessage(
+            getFirebaseError(error)
+          );
+
+        }
+
+      };
+
+
+    /*
+      ==========================================
+      로그인
+      ==========================================
+    */
+
+    document
+      .getElementById("loginBtn")
+      .onclick = async () => {
+
+        const email =
+          document
+            .getElementById("emailInput")
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById("passwordInput")
+            .value;
+
+
+        try {
+
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        } catch (error) {
+
+          showAuthMessage(
+            getFirebaseError(error)
+          );
+
+        }
+
+      };
+
+
+    /*
+      ==========================================
+      로그아웃
+      ==========================================
+    */
+
+    document
+      .getElementById("logoutBtn")
+      .onclick = async () => {
+
+        await signOut(auth);
+
+      };
+
+
+    /*
+      ==========================================
+      로그인 상태
+      ==========================================
+    */
+
+    onAuthStateChanged(
+      auth,
+      async user => {
+
+        currentUser = user;
+
+        const authScreen =
+          document.getElementById(
+            "authScreen"
+          );
+
+        const app =
+          document.getElementById("app");
+
+
+        if (user) {
+
+          authScreen.classList.add(
+            "hidden"
+          );
+
+          app.classList.remove(
+            "hidden"
+          );
+
+
+          const userDoc =
+            await getDoc(
+              doc(
+                db,
+                "users",
+                user.uid
+              )
+            );
+
+
+          if (userDoc.exists()) {
+
+            document.getElementById(
+              "nickname"
+            ).textContent =
+              userDoc.data().nickname || "";
+
+          }
+
+
+          await loadData();
+
+        } else {
+
+          authScreen.classList.remove(
+            "hidden"
+          );
+
+          app.classList.add(
+            "hidden"
+          );
+
+        }
+
+      }
+    );
+
+
+    /*
+      ==========================================
+      Firebase 에러 메시지
+      ==========================================
+    */
+
+    function getFirebaseError(error) {
+
+      if (
+        error.code ===
+        "auth/email-already-in-use"
+      ) {
+        return "이미 가입된 이메일입니다.";
+      }
+
+      if (
+        error.code ===
+        "auth/invalid-credential"
+      ) {
+        return "이메일 또는 비밀번호가 잘못되었습니다.";
+      }
+
+      if (
+        error.code ===
+        "auth/weak-password"
+      ) {
+        return "비밀번호는 6자 이상으로 해주세요.";
+      }
+
+      return "오류가 발생했습니다. Firebase 설정을 확인해주세요.";
+
+    }
+
+
+    function showAuthMessage(message) {
+
+      document.getElementById(
+        "authMessage"
+      ).textContent = message;
+
+    }
+
+
+    /*
+      1분마다 화면 갱신
+      */
+
+    setInterval(() => {
+
+      if (currentUser) {
+
+        render();
+
+      }
+
+    }, 60000);
+
+  </script>
+
+</body>
+</html>
